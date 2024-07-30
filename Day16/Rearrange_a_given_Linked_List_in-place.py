@@ -83,4 +83,3 @@ rearrange(head) #rearrange list as per ques
 print()
 printlist(head) #print modified list
 
-# This code is contributed by ab2127

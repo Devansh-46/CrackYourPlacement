@@ -1,33 +1,56 @@
-class Solution:
-    
-    def __init__(self):
-        self.maxProfit = float('-inf')
-        self.count = 0
+#Back-end complete function Template for Python 3
 
-    @staticmethod
-    def comparison(first, second):
-        if first.deadline < second.deadline:
-            return -1
-        if first.deadline > second.deadline:
-            return 1
-        if first.profit < second.profit:
-            return 1
-        return -1
-        
-    def find(self, arr, curr, n, t, profit, cnt):
-        if curr >= n:
-            if profit > self.maxProfit:
-                self.maxProfit = profit
-                self.count = cnt
-            return
-        if arr[curr].deadline > t:
-            self.find(arr, curr + 1, n, t + 1, profit + arr[curr].profit, cnt + 1)
-        self.find(arr, curr + 1, n, t, profit, cnt)
-        
+# class Job:
+#     '''
+#     Job class which stores profit and deadline.
+#     '''
+#     def __init__(self,profit=0,deadline=0):
+#         self.profit = profit
+#         self.deadline = deadline
+#         self.id = 0
+
+
+class Solution:
+
     #Function to find the maximum profit and the number of jobs done.
-    def JobScheduling(self,Jobs,n):
-        Jobs.sort(key=lambda job: (job.deadline, -job.profit))
-        self.maxProfit = float('-inf')
-        self.count = 0
-        self.find(Jobs, 0, n, 0, 0, 0)
-        return [self.count, self.maxProfit]
+    def JobScheduling(self, Jobs, n):
+
+        res, count = 0, 0
+
+        #sorting all jobs according to decreasing order of profit.
+        Jobs = sorted(Jobs, key=lambda x: x.profit, reverse=True)
+
+        #array to store result (Sequence of jobs).
+        result = [0 for i in range(n)]
+        #boolean array to keep track of free time slots
+        #and initializing all slots to free.
+        slot = [False for i in range(n)]
+
+        #iterating through all given jobs.
+        for i in range(n):
+
+            #finding a free slot for current job (Note that we start
+            #from the last possible slot).
+            for j in range(min(n, Jobs[i].deadline) - 1, -1, -1):
+
+                #if free slot is found, we add current job to result array
+                #and make the current slot occupied.
+                if not slot[j]:
+                    result[j] = i
+                    slot[j] = True
+                    break
+
+        #if slot is occupied, we update the counter and
+
+
+#add its profit in final result.
+        for i in range(n):
+            if slot[i]:
+                res += Jobs[result[i]].profit
+                count += 1
+
+        #storing the count of jobs and max profit in a list and returning it.
+        ans = []
+        ans.append(count)
+        ans.append(res)
+        return ans

@@ -1,54 +1,24 @@
-from collections import deque
 class Solution:
+
+    #Function to check if it is possible to partition the given array into k subsets with equal sum.
+    def isKPartitionPossible(self, nums, k):
+        nums.sort() # Sorting the array in ascending order.
+        target, rem = divmod(sum(nums), k) # Calculating the target sum and remainder.
+        if rem or nums[-1] > target: # If there is a remainder or the largest number is greater than the target sum, return False.
+            return False
     
-    #Function to check if cell indexes are within bounds.
-    def isValid(self, x, y, N):
-        return (x >= 0 and x < N and y >= 0 and y < N)
+        dp = [False] * (1 << len(nums)) # Creating an array to store if a state (subset) is possible.
+        dp[0] = True # The state with an empty subset is possible.
+        total = [0] * (1 << len(nums)) # Creating an array to store the total sum of each state.
     
-    #Function to find out minimum steps Knight needs to reach target position.
-    def minStepToReachTarget(self, KnightPos, TargetPos, N):
-        dxy = [[2,1],[2,-1],[-2,1],[-2,-1],[1,2],[1,-2],[-1,2],[-1,-2]]
-        KnightPos[0]-=1
-        KnightPos[1]-=1
-        TargetPos[0]-=1
-        TargetPos[1]-=1
-        
-        #using boolean list to mark visited cells and currently 
-        #marking all the cells as false
-        vis = [[False for i in range(N)] for j in range(N)]
-        
-        #queue for storing visited cells by knight in board and steps taken.
-        q = deque()
-        #pushing starting position of knight with 0 distance.
-        q.append([KnightPos[0], KnightPos[1], 0])
-        
-        #marking starting cell as visited.
-        vis[KnightPos[0]][KnightPos[1]] = True
-        
-        while(len(q)):
-            
-            #storing cell indexes and steps of front element and popping them.
-            cur = q.popleft()
-            x = cur[0]
-            y = cur[1]
-            steps = cur[2]
-            
-            #if we reach the required cell, we return true.
-            if(x == TargetPos[0] and y == TargetPos[1]):
-                return steps
-                
-            #using loop to reach all the cells that can be reached by knight.
-            for i in range(8):
-                
-                n_x = x + dxy[i][0]
-                n_y = y + dxy[i][1]
-                
-                #if cell indexes are valid and cell is not visited, we push the 
-				#indexes in queue with steps and mark cell as visited.
-                if(self.isValid(n_x, n_y, N) and vis[n_x][n_y] == False):
-                    q.append([n_x, n_y, steps + 1])
-                    vis[n_x][n_y] = True
-        return -1
-        
-        
-        
+        for state in range(1 << len(nums)): # Iterating through all possible states.
+            if not dp[state]: continue # If the current state is not possible, continue to the next state.
+            for i, num in enumerate(nums): # Iterating through each number in the array.
+                future = state | (1 << i) # Creating a new state by adding the current number to the current state.
+                if state != future and not dp[future]: # If the new state is different from the current state and is not possible yet.
+                    if (num <= target - (total[state] % target)): # Checking if the current number can fit into the target sum of the new state.
+                        dp[future] = True # Marking the new state as possible.
+                        total[future] = total[state] + num # Updating the total sum of the new state.
+                    else:
+                        break # If the current number cannot fit into the target sum, break the loop and try the next number.
+        return dp[-1] # Returning the value of the final state, indicating if it is possible to partition the array into k subsets with equal sum.
